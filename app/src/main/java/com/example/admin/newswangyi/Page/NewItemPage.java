@@ -1,18 +1,21 @@
 package com.example.admin.newswangyi.Page;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.admin.newswangyi.PullToRefresh.PullToRefreshListView;
 import com.example.admin.newswangyi.R;
 import com.example.admin.newswangyi.adapter.NewItemAdapter;
 import com.example.admin.newswangyi.bean.NewItemBean;
 import com.example.admin.newswangyi.utils.DensityUtil;
 import com.example.admin.newswangyi.utils.GsonTools;
 import com.example.admin.newswangyi.utils.HMAPI;
+import com.example.admin.newswangyi.utils.SharedPreferenceTools;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.ResponseInfo;
@@ -30,11 +33,11 @@ public class NewItemPage extends BasePage {
     private static final String TAG = "NewItemPage";
     private final String mUrl;
     private ListView iv;
-    private ListView iv_item_news;
     private View topView;
     private LinearLayout top_news_viewpager;
     private LinearLayout dots_ll;
     private TextView txt_title;
+    private PullToRefreshListView lv;
 
     public NewItemPage(Context context, String url) {
         super(context);
@@ -43,8 +46,8 @@ public class NewItemPage extends BasePage {
 
     @Override
     public View initView() {
-        View view = View.inflate(mcontext,R.layout.frag_item_news,null);
-        iv_item_news = (ListView) view.findViewById(R.id.iv_item_news);
+        View view = View.inflate(mcontext, R.layout.frag_item_news, null);
+        lv = (PullToRefreshListView) view.findViewById(R.id.iv_item_news);
         topView = view.inflate(mcontext, R.layout.layout_roll_view, null);
         top_news_viewpager = (LinearLayout) topView.findViewById(R.id.top_news_viewpager);
 
@@ -55,6 +58,10 @@ public class NewItemPage extends BasePage {
 
     @Override
     public void initData() {
+        String result = SharedPreferenceTools.getString(mcontext,HMAPI.BASE_URL+mUrl,"");
+        if (!TextUtils.isEmpty(result)){
+            parseJson(result);
+        }
         getNetData();
     }
 
@@ -100,13 +107,13 @@ public class NewItemPage extends BasePage {
             rollView.setTitle(titles, txt_title);
             rollView.setmImages(imageUrls);
             rollView.start();
-            if (iv_item_news.getHeaderViewsCount()<1){
+            if (lv.getRefreshableView().getHeaderViewsCount()<1){
                 top_news_viewpager.addView(rollView);
-                iv_item_news.addHeaderView(topView);
+                lv.getRefreshableView().addHeaderView(topView);
             }
             if (adapter == null){
                 adapter = new NewItemAdapter(newsItems,mcontext);
-                iv_item_news.setAdapter(adapter);
+                lv.getRefreshableView().setAdapter(adapter);
             }else {
                 adapter.notifyDataSetChanged();
             }
