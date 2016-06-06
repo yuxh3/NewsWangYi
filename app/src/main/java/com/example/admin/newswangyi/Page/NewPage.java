@@ -48,7 +48,6 @@ public class NewPage extends BasePage {
         }
         NewAdapter adapter = new NewAdapter(mcontext,newItemPages,newpageTitles);
         pager.setAdapter(adapter);
-        //indicator.setX(15);
         indicator.setViewPager(pager);
         indicator.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

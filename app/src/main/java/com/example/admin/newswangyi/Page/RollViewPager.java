@@ -35,7 +35,6 @@ public class RollViewPager extends ViewPager {
     private Handler mHandle = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            istop = true;
            int pos =  RollViewPager.this.getCurrentItem()+1;
             RollViewPager.this.setCurrentItem(pos,true);
             start();
@@ -74,7 +73,7 @@ public class RollViewPager extends ViewPager {
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        mHandle.removeCallbacksAndMessages(null);
+                        stop();
                         startTime = System.currentTimeMillis();
                         break;
                     case MotionEvent.ACTION_UP:
@@ -84,6 +83,7 @@ public class RollViewPager extends ViewPager {
                                 mListener.onClick();
                             }
                         }
+
                         break;
                     case MotionEvent.ACTION_CANCEL:
                         start();
@@ -100,7 +100,6 @@ public class RollViewPager extends ViewPager {
     public void setTitle(List<String> titles, TextView top_news_title) {
         if (titles != null && titles.size()>0 && top_news_title != null){
             top_news_title.setText(titles.get(0));
-            Log.i(TAG, "LLLLLLLLLLLLLLLLL" + titles.size());
         }
         this.mTitle = titles;
         this.mTV = top_news_title;
@@ -116,6 +115,7 @@ public class RollViewPager extends ViewPager {
         }
         mHandle.sendEmptyMessageDelayed(0,3000);
         if (!istop) {
+            istop = true;
             int mCurrenItem = (Integer.MAX_VALUE) / 2 - 3;
             RollViewPager.this.setCurrentItem(mCurrenItem);
             mDots.get(mCurrenItem % mImages.size()).setBackgroundResource(R.drawable.dot_focus);
@@ -167,7 +167,7 @@ public class RollViewPager extends ViewPager {
                 Log.i(TAG,"我被移动了");
                if (diffX >diffY){
                    getParent().requestDisallowInterceptTouchEvent(true);
-                   mHandle.removeCallbacksAndMessages(null);
+                   stop();
                }else {
                    getParent().requestDisallowInterceptTouchEvent(false);
                }

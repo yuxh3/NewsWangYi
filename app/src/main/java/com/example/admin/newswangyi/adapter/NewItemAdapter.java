@@ -1,6 +1,7 @@
 package com.example.admin.newswangyi.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -34,6 +35,12 @@ public class NewItemAdapter extends MyBaseAdapter {
         Glide.with(mContext).load(newsItem.listimage).into(iv_img);
         tv_title.setText(newsItem.title);
         tv_pub_date.setText(newsItem.pubdate);
+
+        if (newsItem.isRead){
+            tv_title.setTextColor(Color.RED);
+        }else {
+            tv_title.setTextColor(Color.BLACK);
+        }
         return convertView;
     }
 }

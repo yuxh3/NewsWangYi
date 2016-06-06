@@ -4,7 +4,7 @@ public class HMAPI {
 	/**
 	 * 类似公司的域名
 	 */
-	public static final String BASE_URL = "http://192.168.1.106:8080/zhbj";
+	public static final String BASE_URL = "http://192.168.1.105:8080/zhbj";
 	/**
 	 * 新闻中心
 	 */

@@ -19,8 +19,8 @@ public class NewItemBean {
         public class TopnewsItem{
             public boolean comment;
             public String commentlist;
-            public String commenturl;
             public int id;
+            public String commenturl;
             public String pubdate;
             public String title;
             public String topimage;
@@ -38,6 +38,7 @@ public class NewItemBean {
             public String title;
             public String type;
             public String url;
+            public boolean isRead = false;
         }
     }
 }

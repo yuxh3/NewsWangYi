@@ -1,6 +1,7 @@
 package com.example.admin.newswangyi.Page;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -54,10 +55,10 @@ public class NewsCenterPage extends BasePage {
     public void initData() {
 
         //第二次进来的时候，先判断本地是否有缓存，如果有先显示本地数据
-       // String result = SharedPreferenceTools.getString(mcontext, HMAPI.NEW_CENTER, "");
-//        if (!(TextUtils.isEmpty(result))){
-//            paraeJson(result);
-//        }
+      String result = SharedPreferenceTools.getString(mcontext, HMAPI.NEW_CENTER, "");
+      if (!(TextUtils.isEmpty(result))){
+          parseJson(result);
+       }
         getNetData();
     }
     //获取网络数据
@@ -86,6 +87,7 @@ public class NewsCenterPage extends BasePage {
 //							System.out.println(arg0.body().string());
 
                             parseJson(arg0.body().string());
+
                         } catch (Exception e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
@@ -109,7 +111,7 @@ public class NewsCenterPage extends BasePage {
     private List<String> menuTitles = new ArrayList<String>();//左边菜单界面的标题数据集合
     private List<BasePage> newsCenterPages = new ArrayList<BasePage>();//新闻中心对应的界面数据集合
     public void parseJson(String json) {
-
+        Log.i(TAG, "iiiiiiiiiiiiiiiiiiiii::::" + json);
         //isLoading = true;
         SharedPreferenceTools.saveString(mcontext,HMAPI.NEW_CENTER,json);
         Gson gson = new Gson();
