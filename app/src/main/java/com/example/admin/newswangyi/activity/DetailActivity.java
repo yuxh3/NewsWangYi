@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 
 import com.example.admin.newswangyi.R;
@@ -21,6 +22,7 @@ import com.example.admin.newswangyi.R;
  */
 public class DetailActivity extends Activity implements View.OnClickListener {
 
+    private static final String TAG = "DetailActivity";
     private WebView webView;
     private ProgressBar pb_loading;
     private Button btn_left;
@@ -29,6 +31,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
     private ImageButton btn_right;
     private String url;
     private ListView lv;
+    private PopupWindow popupWindow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,33 +47,51 @@ public class DetailActivity extends Activity implements View.OnClickListener {
         btn_right = (ImageButton) findViewById(R.id.btn_right);
 
         initData();
-        //initView();
+
 
     }
 
     private void initView() {
-        lv = new ListView(DetailActivity.this);
-        String [] objects = new String[]{
-                "最小字体","正常字体","最大字体"
+//        Log.i(TAG, "77777777777777777777777");
+        lv = new ListView(this);
+        lv.setBackgroundResource(R.drawable.listview_background);
+        // 取出ListView的分割线
+        lv.setDivider(null);
+        lv.setDividerHeight(0);
+        lv.setSelector(android.R.color.transparent);
+
+        String[] objects = new String[]{
+                "最小字体", "小字体", "正常字体", "最大字体", "超大字体"
         };
-        ArrayAdapter<String> adapter = new ArrayAdapter(DetailActivity.this,
-                                                                    android.R.layout.simple_list_item_1
-                                                                    ,android.R.id.text1,
-                                                                        objects);
+        ArrayAdapter<String> adapter = new ArrayAdapter(this
+                , android.R.layout.simple_list_item_1
+                , android.R.id.text1
+                , objects);
         lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-               if (position==0){
-                   webView.getSettings().setTextSize(WebSettings.TextSize.SMALLER);
-               }else if (position==1){
-                   webView.getSettings().setTextSize(WebSettings.TextSize.NORMAL);
-               }else if (position == 2){
-                   webView.getSettings().setTextSize(WebSettings.TextSize.LARGER);
-               }
+
+                if (position == 0) {
+                    webView.getSettings().setTextSize(WebSettings.TextSize.SMALLEST);
+                    popupWindow.dismiss();
+                } else if (position == 1) {
+                    webView.getSettings().setTextSize(WebSettings.TextSize.SMALLEST);
+                    popupWindow.dismiss();
+                } else if (position == 2) {
+                    webView.getSettings().setTextSize(WebSettings.TextSize.NORMAL);
+                    popupWindow.dismiss();
+                } else if (position == 3) {
+                    webView.getSettings().setTextSize(WebSettings.TextSize.LARGER);
+                    popupWindow.dismiss();
+                } else if (position == 4) {
+                    webView.getSettings().setTextSize(WebSettings.TextSize.LARGEST);
+                    popupWindow.dismiss();
+                }
             }
         });
     }
+
 
     private void initData() {
         btn_left.setVisibility(View.GONE);
@@ -107,11 +128,12 @@ public class DetailActivity extends Activity implements View.OnClickListener {
                 this.finish();
                 break;
             case R.id.imgbtn_right://字体设置
-//                PopupWindow popupWindow = new PopupWindow(lv,100,100);
-//                popupWindow.setOutsideTouchable(true);
-//                popupWindow.setFocusable(true);
+                initView();
+                popupWindow = new PopupWindow(lv,180,280);
+                popupWindow.setOutsideTouchable(true);
+                popupWindow.setFocusable(true);
+                popupWindow.showAsDropDown(imgbtn_right,0,10);
 
-                webView.getSettings().setTextSize(WebSettings.TextSize.LARGER);
                 break;
             case R.id.btn_right://分享
 
