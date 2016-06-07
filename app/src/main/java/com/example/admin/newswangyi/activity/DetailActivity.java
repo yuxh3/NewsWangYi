@@ -1,9 +1,13 @@
 package com.example.admin.newswangyi.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -14,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.admin.newswangyi.R;
 
@@ -32,6 +37,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
     private String url;
     private ListView lv;
     private PopupWindow popupWindow;
+    private WebSettings settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,19 +79,19 @@ public class DetailActivity extends Activity implements View.OnClickListener {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 if (position == 0) {
-                    webView.getSettings().setTextSize(WebSettings.TextSize.SMALLEST);
+                    settings.setTextSize(WebSettings.TextSize.SMALLEST);
                     popupWindow.dismiss();
                 } else if (position == 1) {
-                    webView.getSettings().setTextSize(WebSettings.TextSize.SMALLEST);
+                    settings.setTextSize(WebSettings.TextSize.SMALLEST);
                     popupWindow.dismiss();
                 } else if (position == 2) {
-                    webView.getSettings().setTextSize(WebSettings.TextSize.NORMAL);
+                    settings.setTextSize(WebSettings.TextSize.NORMAL);
                     popupWindow.dismiss();
                 } else if (position == 3) {
-                    webView.getSettings().setTextSize(WebSettings.TextSize.LARGER);
+                    settings.setTextSize(WebSettings.TextSize.LARGER);
                     popupWindow.dismiss();
                 } else if (position == 4) {
-                    webView.getSettings().setTextSize(WebSettings.TextSize.LARGEST);
+                    settings.setTextSize(WebSettings.TextSize.LARGEST);
                     popupWindow.dismiss();
                 }
             }
@@ -93,6 +99,7 @@ public class DetailActivity extends Activity implements View.OnClickListener {
     }
 
 
+    @SuppressLint("JavascriptInterface")
     private void initData() {
         btn_left.setVisibility(View.GONE);
         imgbtn_left.setImageResource(R.drawable.back);
@@ -104,6 +111,27 @@ public class DetailActivity extends Activity implements View.OnClickListener {
         btn_right.setOnClickListener(this);
 
         webView.loadUrl(url);
+        settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setBuiltInZoomControls(true);
+
+        webView.setWebChromeClient(new WebChromeClient() {
+
+            //能够拿到网页的加载进度值
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                super.onProgressChanged(view, newProgress);
+                System.out.println("网页加载进度：" + newProgress);
+            }
+
+            //获取到对应网页的标题
+            @Override
+            public void onReceivedTitle(WebView view, String title) {
+                super.onReceivedTitle(view, title);
+                System.out.println("标题：" + title);
+            }
+
+        });
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
@@ -115,9 +143,26 @@ public class DetailActivity extends Activity implements View.OnClickListener {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 pb_loading.setVisibility(View.VISIBLE);
+                addImageClick();
             }
         });
-        
+
+        webView.addJavascriptInterface(new JsCallAndroid() {
+            @JavascriptInterface
+            @Override
+            public void openImage(String url) {
+
+                Toast.makeText(getApplicationContext(), url,Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(DetailActivity.this,ShowImageActivity.class);
+                intent.putExtra("url", url);
+                startActivity(intent);
+
+            }
+        }, "imagelistner");
+
+
+
+
     }
 
     @Override
@@ -140,4 +185,23 @@ public class DetailActivity extends Activity implements View.OnClickListener {
                 break;
         }
     }
-}
+
+    //在网页加载完成之后，给图片设置点击事件
+    protected void addImageClick() {
+        //Android调用js
+//		webview.loadUrl("javascript:wave()");
+        // 这段js函数的功能就是，遍历所有的img几点，并添加onclick函数，
+        // 在还是执行的时候调用本地接口传递url过去
+        webView.loadUrl("javascript:(function(){"
+                + "var objs = document.getElementsByTagName(\"img\"); "
+                + "for(var i=0;i<objs.length;i++)  " + "{"
+                + "    objs[i].onclick=function()  " + "   " + " {  "
+                + "        window.imagelistner.openImage(this.src);  "
+                + "    }  " + "}" + "})()");
+
+    }
+    public interface JsCallAndroid{
+        public void openImage(String url);
+    }
+
+    }

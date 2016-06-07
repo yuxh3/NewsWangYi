@@ -86,7 +86,7 @@ public class NewItemPage extends BasePage {
 
                 if (TextUtils.isEmpty(moreUrl)){
                     Toast.makeText(mcontext,"没有更多的数据了",Toast.LENGTH_SHORT).show();
-                    lv.onPullUpRefreshComplete();
+                    lv.onPullDownRefreshComplete();
                 }else {
                     getNetData(true, moreUrl);
                 }
@@ -95,7 +95,7 @@ public class NewItemPage extends BasePage {
             public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
                 if (TextUtils.isEmpty(moreUrl)){
                     Toast.makeText(mcontext,"没有等多的数据了",Toast.LENGTH_SHORT).show();
-                    lv.onPullDownRefreshComplete();
+                    lv.onPullUpRefreshComplete();
                 }else {
                     getNetData(false, moreUrl);
                 }
@@ -121,12 +121,12 @@ public class NewItemPage extends BasePage {
 
 
     public void getNetData(final boolean isFresh, String mUrl) {
-        Log.i(TAG, "5555555555555555555555555555");
+
         HttpUtils httpUtils = new HttpUtils();
-        httpUtils.send(HttpRequest.HttpMethod.GET, HMAPI.BASE_URL + this.mUrl, new RequestCallBack<String>() {
+        httpUtils.send(HttpRequest.HttpMethod.GET, HMAPI.BASE_URL + mUrl, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-               // Log.i(TAG,responseInfo.result);
+                // Log.i(TAG,responseInfo.result);
                 parseJson(responseInfo.result, isFresh);
 
             }
@@ -149,33 +149,40 @@ public class NewItemPage extends BasePage {
             isLoading = true;
             SharedPreferenceTools.saveString(mcontext, HMAPI.BASE_URL+mUrl, result);
                 newsItems.addAll(newItemBean.data.news);
+
                 initDots(newItemBean.data.topnews.size());
-                if (rollView != null){
+
+            if (isFresh) {
+                initDots(newItemBean.data.topnews.size());
+
+                if (rollView != null) {
                     rollView.stop();
                 }
 
-            //轮播图
-            rollView = new RollViewPager(mcontext,dots, new RollViewPager.OnClickListener() {
-                @Override
-                public void onClick() {
-                    Toast.makeText(mcontext, "我被点击了", Toast.LENGTH_SHORT).show();
+                //轮播图
+                rollView = new RollViewPager(mcontext, dots, new RollViewPager.OnClickListener() {
+                    @Override
+                    public void onClick() {
+                        Toast.makeText(mcontext, "我被点击了", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                List<String> titles = new ArrayList<String>();//轮播图的标题数据集合
+                List<String> imageUrls = new ArrayList<String>();//轮播图的图片地址集合
+                for (NewItemBean.DataItem.TopnewsItem item : newItemBean.data.topnews) {
+                    titles.add(item.title);
+                    imageUrls.add(item.topimage);
                 }
-            });
-            List<String> titles = new ArrayList<String>();//轮播图的标题数据集合
-            List<String> imageUrls = new ArrayList<String>();//轮播图的图片地址集合
-            for (NewItemBean.DataItem.TopnewsItem item : newItemBean.data.topnews){
-                titles.add(item.title);
-                imageUrls.add(item.topimage);
-            }
-            rollView.setTitle(titles, txt_title);
-            rollView.setmImages(imageUrls);
-            rollView.start();
-            top_news_viewpager.removeAllViews();
-            top_news_viewpager.addView(rollView);//把轮播图添加到topview中
-            if (lv.getRefreshableView().getHeaderViewsCount()<1){
-                lv.getRefreshableView().addHeaderView(topView);
+                rollView.setTitle(titles, txt_title);
+                rollView.setmImages(imageUrls);
+                rollView.start();
+                top_news_viewpager.removeAllViews();
+                top_news_viewpager.addView(rollView);//把轮播图添加到topview中
+                if (lv.getRefreshableView().getHeaderViewsCount() < 1) {
+                    lv.getRefreshableView().addHeaderView(topView);
+                }
             }
             if (isFresh){
+                Log.i(TAG, "moreUrl" + "HHHHHHHHHHHHHHHHHHHHHHH");
                 newsItems.clear();
                 newsItems.addAll(newItemBean.data.news);
             }else {
@@ -198,9 +205,8 @@ public class NewItemPage extends BasePage {
             }else {
                 adapter.mDatas=newsItems;
                 adapter.notifyDataSetChanged();
-
-
             }
+
             lv.onPullUpRefreshComplete();
             lv.onPullDownRefreshComplete();
         }
@@ -209,7 +215,7 @@ public class NewItemPage extends BasePage {
     private void initDots(int size) {
         dots_ll.removeAllViews();
         dots.clear();
-        Log.i(TAG, "moreUrl" + "HHHHHHHHHHHHHHHHHHHHHHH");
+
         for (int i = 0;i<size;i++){
             View dot = new View(mcontext);
            if (i == 0){

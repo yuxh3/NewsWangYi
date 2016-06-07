@@ -59,7 +59,7 @@ public class RollViewPager extends ViewPager {
             @Override
             public void onPageSelected(int position) {
                 mTV.setText(mTitle.get(position % mImages.size()));
-                mDots.get(position % mImages.size()).setBackgroundResource(R.drawable.dot_focus);
+                mDots.get(position %mImages.size()).setBackgroundResource(R.drawable.dot_focus);
                 mDots.get(prevousPosition).setBackgroundResource(R.drawable.dot_normal);
                 prevousPosition = position % mImages.size();
             }
